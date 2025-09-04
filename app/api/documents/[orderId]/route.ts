@@ -9,11 +9,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { documentService } from '@/lib/documents/document-service'
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   context: { params: Promise<{ orderId: string }> }
 ) {
   try {
-    const { orderId } = params
+    const { orderId } = await context.params
 
     if (!orderId) {
       return NextResponse.json(
