@@ -10,7 +10,7 @@ import { documentService } from '@/lib/documents/document-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
   try {
     const { orderId } = params
