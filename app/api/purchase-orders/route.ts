@@ -27,15 +27,9 @@ interface PurchaseOrderRequest {
 }
 
 export async function POST(request: NextRequest) {
-  console.log('📥 Purchase order request received')
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-    
-    console.log('🔧 Environment check:', {
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceKey: !!serviceRoleKey
-    })
     
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: {
@@ -45,12 +39,6 @@ export async function POST(request: NextRequest) {
     })
     
     const body: PurchaseOrderRequest = await request.json()
-    console.log('📋 Request body received:', {
-      productsCount: body.products?.length,
-      hasContactInfo: !!body.contactInfo,
-      deliverySelected: body.deliverySelected,
-      hasFulfillmentDate: !!body.fulfillmentDate
-    })
     
     // Generate unique order number using secure database function
     const { data: orderNumberResult, error: orderNumberError } = await supabase
@@ -210,7 +198,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('❌ Purchase order error:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error },
       { status: 500 }
