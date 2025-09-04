@@ -262,8 +262,5 @@ class EnvironmentConfig {
 // Export singleton instance
 export const config = new EnvironmentConfig()
 
-// Export types for use in other modules
-export type { DocumentConfig }
-
 // Export class for testing
 export { EnvironmentConfig }
