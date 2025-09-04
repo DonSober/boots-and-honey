@@ -261,3 +261,157 @@ export type AddonUpdate = Database['public']['Tables']['addons']['Update']
 export type DeliveryZone = Database['public']['Tables']['delivery_zones']['Row']
 export type DeliveryZoneInsert = Database['public']['Tables']['delivery_zones']['Insert']
 export type DeliveryZoneUpdate = Database['public']['Tables']['delivery_zones']['Update']
+
+// =============================================================================
+// Document Tracking Types (Phase 1)
+// =============================================================================
+
+export type DocumentType = 'receipt' | 'pick_slip'
+export type DocumentStatus = 'pending' | 'generated' | 'failed'
+export type CommunicationType = 'confirmation' | 'pickup_ready' | 'delivered' | 'cancelled'
+export type CommunicationStatus = 'pending' | 'sent' | 'failed' | 'bounced'
+export type WebhookEventStatus = 'pending' | 'processing' | 'completed' | 'failed'
+
+export interface OrderDocument {
+  id: string
+  order_id: string
+  document_type: DocumentType
+  file_url: string | null
+  file_path: string | null
+  generated_at: string
+  webhook_event_id: string | null
+  status: DocumentStatus
+  error_message: string | null
+  retry_count: number
+  metadata: Record<string, any>
+  created_at: string
+  updated_at: string
+}
+
+export interface OrderDocumentInsert {
+  id?: string
+  order_id: string
+  document_type: DocumentType
+  file_url?: string | null
+  file_path?: string | null
+  generated_at?: string
+  webhook_event_id?: string | null
+  status?: DocumentStatus
+  error_message?: string | null
+  retry_count?: number
+  metadata?: Record<string, any>
+  created_at?: string
+  updated_at?: string
+}
+
+export interface OrderDocumentUpdate {
+  id?: string
+  order_id?: string
+  document_type?: DocumentType
+  file_url?: string | null
+  file_path?: string | null
+  generated_at?: string
+  webhook_event_id?: string | null
+  status?: DocumentStatus
+  error_message?: string | null
+  retry_count?: number
+  metadata?: Record<string, any>
+  created_at?: string
+  updated_at?: string
+}
+
+export interface OrderCommunication {
+  id: string
+  order_id: string
+  communication_type: CommunicationType
+  recipient_email: string
+  subject: string | null
+  sent_at: string
+  webhook_event_id: string | null
+  status: CommunicationStatus
+  provider_message_id: string | null
+  error_message: string | null
+  retry_count: number
+  metadata: Record<string, any>
+  created_at: string
+  updated_at: string
+}
+
+export interface OrderCommunicationInsert {
+  id?: string
+  order_id: string
+  communication_type: CommunicationType
+  recipient_email: string
+  subject?: string | null
+  sent_at?: string
+  webhook_event_id?: string | null
+  status?: CommunicationStatus
+  provider_message_id?: string | null
+  error_message?: string | null
+  retry_count?: number
+  metadata?: Record<string, any>
+  created_at?: string
+  updated_at?: string
+}
+
+export interface OrderCommunicationUpdate {
+  id?: string
+  order_id?: string
+  communication_type?: CommunicationType
+  recipient_email?: string
+  subject?: string | null
+  sent_at?: string
+  webhook_event_id?: string | null
+  status?: CommunicationStatus
+  provider_message_id?: string | null
+  error_message?: string | null
+  retry_count?: number
+  metadata?: Record<string, any>
+  created_at?: string
+  updated_at?: string
+}
+
+export interface WebhookEvent {
+  id: string
+  event_type: string
+  table_name: string
+  record_id: string
+  payload: Record<string, any>
+  processed_at: string | null
+  status: WebhookEventStatus
+  error_message: string | null
+  retry_count: number
+  processing_duration_ms: number | null
+  created_at: string
+  updated_at: string
+}
+
+export interface WebhookEventInsert {
+  id?: string
+  event_type: string
+  table_name: string
+  record_id: string
+  payload: Record<string, any>
+  processed_at?: string | null
+  status?: WebhookEventStatus
+  error_message?: string | null
+  retry_count?: number
+  processing_duration_ms?: number | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface WebhookEventUpdate {
+  id?: string
+  event_type?: string
+  table_name?: string
+  record_id?: string
+  payload?: Record<string, any>
+  processed_at?: string | null
+  status?: WebhookEventStatus
+  error_message?: string | null
+  retry_count?: number
+  processing_duration_ms?: number | null
+  created_at?: string
+  updated_at?: string
+}

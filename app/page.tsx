@@ -229,7 +229,11 @@ export default function PurchaseOrderPage() {
               Purchase Order
             </p>
             <p className="text-sm/3 text-center text-[rgba(77,84,97,1)] text-base">
-              August 27, 2024
+              {new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
 
@@ -250,7 +254,7 @@ export default function PurchaseOrderPage() {
                       <div className="flex gap-1.5">
                         <product.icon className="w-4 h-4 stroke-2 text-[rgba(77,84,97,1)] self-center" />
                         <p className="text-sm font-medium text-[rgba(77,84,97,1)] self-center">
-                          {product.type}
+                          {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
                         </p>{" "}
                       </div>
                       <div className="flex w-fit space-x-0.5">
@@ -572,7 +576,7 @@ export default function PurchaseOrderPage() {
                             <div className="flex justify-between py-4">
                               <div className="flex flex-col">
                                 <span className="w-fit font-medium text-sm text-[rgba(77,84,97,1)]">
-                                  {product.type}
+                                  {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
                                 </span>
                                 <span className="text-xs text-[rgba(127,138,148,1)] self-center">
                                   {product.quantity} bundle

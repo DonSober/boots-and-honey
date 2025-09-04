@@ -8,7 +8,9 @@
     "seed": "tsx scripts/seed-database.ts",
     "seed:safe": "tsx scripts/seed-production.ts",
     "seed:reset": "tsx scripts/seed-production.ts --reset",
-    "security:fix": "tsx scripts/apply-security-fixes.ts"
+    "security:fix": "tsx scripts/apply-security-fixes.ts",
+    "migrate": "tsx scripts/run-migration.ts",
+    "test:phase1": "tsx scripts/test-phase1.ts"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.16",
