@@ -4,7 +4,7 @@
     "dev": "NODE_OPTIONS='--inspect' next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "seed": "tsx scripts/seed-database.ts",
     "seed:safe": "tsx scripts/seed-production.ts",
     "seed:reset": "tsx scripts/seed-production.ts --reset",

@@ -33,9 +33,8 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: DO NOT REMOVE auth.getUser()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Get user session (required for session maintenance)
+  await supabase.auth.getUser()
 
   // Temporarily disabled authentication redirect
   // if (

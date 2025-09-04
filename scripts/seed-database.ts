@@ -22,7 +22,7 @@ const products: ProductInsert[] = [
       "Gold & Green Varieties", 
       "Certified Organic",
       "Harvested to Order"
-    ] as any
+    ]
   },
   {
     name: 'Golden',
@@ -34,7 +34,7 @@ const products: ProductInsert[] = [
       "Pure Gold Cane",
       "Certified Organic", 
       "Harvested to Order"
-    ] as any
+    ]
   }
 ]
 
