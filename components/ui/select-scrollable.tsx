@@ -34,7 +34,7 @@ export function SelectScrollable({
   if (groupBy) {
     // Group items by the specified field
     const groupedItems = items.reduce((acc, item) => {
-      const group = (item as any)[groupBy] || 'Other'
+      const group = item[groupBy as keyof typeof item] || 'Other'
       if (!acc[group]) acc[group] = []
       acc[group].push(item)
       return acc

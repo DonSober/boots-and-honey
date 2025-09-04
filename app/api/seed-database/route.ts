@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { ProductInsert, AddonInsert } from '@/types/database'
 
@@ -13,7 +13,7 @@ const products: ProductInsert[] = [
       "Gold & Green Varieties", 
       "Certified Organic",
       "Harvested to Order"
-    ] as any
+    ]
   },
   {
     name: 'Golden',
@@ -25,7 +25,7 @@ const products: ProductInsert[] = [
       "Pure Gold Cane",
       "Certified Organic", 
       "Harvested to Order"
-    ] as any
+    ]
   }
 ]
 
@@ -38,7 +38,7 @@ const addons: AddonInsert[] = [
   }
 ]
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     const supabase = await createClient()
     
