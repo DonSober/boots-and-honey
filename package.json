@@ -10,7 +10,8 @@
     "seed:reset": "tsx scripts/seed-production.ts --reset",
     "security:fix": "tsx scripts/apply-security-fixes.ts",
     "migrate": "tsx scripts/run-migration.ts",
-    "test:phase1": "tsx scripts/test-phase1.ts"
+    "test:phase1": "tsx scripts/test-phase1.ts",
+    "test:phase2": "tsx scripts/test-phase2.ts"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.16",
@@ -25,6 +26,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.2",
     "lucide-react": "^0.511.0",
     "next": "latest",
     "next-themes": "^0.4.6",
