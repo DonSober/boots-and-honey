@@ -82,7 +82,7 @@ export class SupabaseStorageService {
       const storagePath = `${folder}/${fileName}`
 
       // Upload to Supabase Storage
-      const { data, error } = await this.getSupabase().storage
+      const { error } = await this.getSupabase().storage
         .from(this.getBucket())
         .upload(storagePath, fileBuffer, {
           contentType: 'application/pdf',
@@ -139,7 +139,7 @@ export class SupabaseStorageService {
       const storagePath = `${folder}/${fileName}`
 
       // Upload to Supabase Storage
-      const { data, error } = await this.getSupabase().storage
+      const { error } = await this.getSupabase().storage
         .from(this.getBucket())
         .upload(storagePath, buffer, {
           contentType,
@@ -296,7 +296,7 @@ export class SupabaseStorageService {
         }
       }
 
-    } catch (error) {
+    } catch {
       // Error cleaning up old files - ignore and continue
     }
 
@@ -348,7 +348,7 @@ export class SupabaseStorageService {
         }
       }
 
-    } catch (error) {
+    } catch {
       // Error getting storage stats - return default values
     }
 
@@ -361,7 +361,7 @@ export class SupabaseStorageService {
   async ensureBucket(): Promise<{ success: boolean; error?: string }> {
     try {
       // Try to get bucket info
-      const { data, error } = await this.getSupabase().storage.getBucket(this.getBucket())
+      const { error } = await this.getSupabase().storage.getBucket(this.getBucket())
 
       if (error && error.message.includes('not found')) {
         // Create bucket if it doesn't exist

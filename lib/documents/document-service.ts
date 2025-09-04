@@ -284,7 +284,7 @@ export class DocumentService {
         }))
       }
 
-    } catch (error) {
+    } catch {
       return null
     }
   }

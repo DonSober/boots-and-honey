@@ -94,7 +94,7 @@ async function runPhase2Tests() {
     const testItems = await dbTestUtils.createTestOrderItems(testOrder.id, 3)
     console.log(`✅ Created ${testItems.length} test items`)
 
-    const testAddon = await dbTestUtils.createTestOrderAddon(testOrder.id)
+    await dbTestUtils.createTestOrderAddon(testOrder.id)
     console.log(`✅ Created test addon`)
 
     // Test 5: Document Generation
