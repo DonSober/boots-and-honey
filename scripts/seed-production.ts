@@ -48,24 +48,24 @@ const products: ProductInsert[] = [
     type: 'starter', // Using lowercase to match potential check constraint
     price_per_bundle: 30,
     description: 'Our Standard Harvest',
-    features: [
+    features: JSON.stringify([
       "12+ Month Maturity",
       "Gold & Green Varieties", 
       "Certified Organic",
       "Harvested to Order"
-    ]
+    ])
   },
   {
     name: 'Golden',
     type: 'premium', // Using lowercase to match potential check constraint
     price_per_bundle: 40,
     description: 'Selectively Harvested',
-    features: [
+    features: JSON.stringify([
       "18+ Month Maturity",
       "Pure Gold Cane",
       "Certified Organic", 
       "Harvested to Order"
-    ]
+    ])
   }
 ]
 
@@ -126,7 +126,7 @@ export async function seedDatabase(reset = false) {
     
     const { data: existingZones } = await supabase
       .from('delivery_zones')
-      .select('zip_code')
+      .select('*')
       .in('zip_code', deliveryZones.map(d => d.zip_code))
     
     const existingZipCodes = new Set(existingZones?.map(z => z.zip_code) || [])
@@ -159,7 +159,7 @@ export async function seedDatabase(reset = false) {
     // Check if products already exist
     const { data: existingProducts } = await supabase
       .from('products')
-      .select('type')
+      .select('*')
       .in('type', products.map(p => p.type))
     
     const existingTypes = new Set(existingProducts?.map(p => p.type) || [])
@@ -192,7 +192,7 @@ export async function seedDatabase(reset = false) {
     // Check if addons already exist
     const { data: existingAddons } = await supabase
       .from('addons')
-      .select('name')
+      .select('*')
       .in('name', addons.map(a => a.name))
     
     const existingNames = new Set(existingAddons?.map(a => a.name) || [])

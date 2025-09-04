@@ -22,7 +22,7 @@ interface PurchaseOrderRequest {
     poNumber: string
     specialInstructions: string
   }
-  fulfillmentDate?: Date
+  fulfillmentDate?: string
   deliverySelected: boolean
 }
 

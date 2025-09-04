@@ -17,24 +17,24 @@ const products: ProductInsert[] = [
     type: 'starter',
     price_per_bundle: 30,
     description: 'Our Standard Harvest',
-    features: [
+    features: JSON.stringify([
       "12+ Month Maturity",
       "Gold & Green Varieties", 
       "Certified Organic",
       "Harvested to Order"
-    ]
+    ])
   },
   {
     name: 'Golden',
     type: 'premium',
     price_per_bundle: 40,
     description: 'Selectively Harvested',
-    features: [
+    features: JSON.stringify([
       "18+ Month Maturity",
       "Pure Gold Cane",
       "Certified Organic", 
       "Harvested to Order"
-    ]
+    ])
   }
 ]
 
