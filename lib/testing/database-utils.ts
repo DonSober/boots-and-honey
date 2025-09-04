@@ -403,7 +403,7 @@ export class DatabaseTestUtils {
         if (!error) {
           stats[tableName] = count || 0
         }
-      } catch (error) {
+      } catch {
         stats[tableName] = 'error'
       }
     }

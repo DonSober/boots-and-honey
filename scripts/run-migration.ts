@@ -69,12 +69,7 @@ class MigrationRunner {
         
         for (const statement of statements) {
           if (statement.trim()) {
-            const { error: execError } = await this.supabase
-              .from('__migrations__') // This will fail, but that's ok - we're using it to execute SQL
-              .select('*')
-              .limit(0)
-            
-            // Actually, let's use a different approach for direct SQL execution
+            // Execute the individual SQL statement
             await this.executeRawSql(statement)
           }
         }
@@ -124,7 +119,7 @@ class MigrationRunner {
       if (!cleanSql) return
 
       // Execute using raw RPC call
-      const { error } = await (this.supabase as any).rpc('exec', {
+      const { error } = await (this.supabase as unknown as { rpc: (name: string, params: Record<string, unknown>) => Promise<{ error?: { message: string } }> }).rpc('exec', {
         sql: cleanSql
       })
 

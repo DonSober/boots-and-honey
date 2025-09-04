@@ -283,7 +283,7 @@ export interface OrderDocument {
   status: DocumentStatus
   error_message: string | null
   retry_count: number
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
 }
@@ -299,7 +299,7 @@ export interface OrderDocumentInsert {
   status?: DocumentStatus
   error_message?: string | null
   retry_count?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   created_at?: string
   updated_at?: string
 }
@@ -315,7 +315,7 @@ export interface OrderDocumentUpdate {
   status?: DocumentStatus
   error_message?: string | null
   retry_count?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   created_at?: string
   updated_at?: string
 }
@@ -332,7 +332,7 @@ export interface OrderCommunication {
   provider_message_id: string | null
   error_message: string | null
   retry_count: number
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
 }
@@ -349,7 +349,7 @@ export interface OrderCommunicationInsert {
   provider_message_id?: string | null
   error_message?: string | null
   retry_count?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   created_at?: string
   updated_at?: string
 }
@@ -366,7 +366,7 @@ export interface OrderCommunicationUpdate {
   provider_message_id?: string | null
   error_message?: string | null
   retry_count?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   created_at?: string
   updated_at?: string
 }
@@ -376,7 +376,7 @@ export interface WebhookEvent {
   event_type: string
   table_name: string
   record_id: string
-  payload: Record<string, any>
+  payload: Record<string, unknown>
   processed_at: string | null
   status: WebhookEventStatus
   error_message: string | null
@@ -391,7 +391,7 @@ export interface WebhookEventInsert {
   event_type: string
   table_name: string
   record_id: string
-  payload: Record<string, any>
+  payload: Record<string, unknown>
   processed_at?: string | null
   status?: WebhookEventStatus
   error_message?: string | null
@@ -406,7 +406,7 @@ export interface WebhookEventUpdate {
   event_type?: string
   table_name?: string
   record_id?: string
-  payload?: Record<string, any>
+  payload?: Record<string, unknown>
   processed_at?: string | null
   status?: WebhookEventStatus
   error_message?: string | null

@@ -101,8 +101,8 @@ async function runPhase1Tests() {
       const commStatuses: Array<'pending' | 'sent' | 'failed' | 'bounced'> = ['pending', 'sent', 'failed', 'bounced']
       
       console.log('✅ TypeScript types are properly defined')
-      console.log(`   Document types: ${documentTypes.length}`)
-      console.log(`   Communication types: ${commTypes.length}`)
+      console.log(`   Document types: ${documentTypes.length}, statuses: ${documentStatuses.length}`)
+      console.log(`   Communication types: ${commTypes.length}, statuses: ${commStatuses.length}`)
     } catch (error) {
       console.log('❌ Type safety verification failed:', error)
       allTestsPassed = false
