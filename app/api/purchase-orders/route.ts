@@ -22,7 +22,7 @@ interface PurchaseOrderRequest {
     poNumber: string
     specialInstructions: string
   }
-  fulfillmentDate?: string
+  fulfillmentDate?: string | Date
   deliverySelected: boolean
 }
 
@@ -131,7 +131,9 @@ export async function POST(request: NextRequest) {
       zip_code: body.contactInfo.zipCode,
       po_number: body.contactInfo.poNumber || null,
       special_instructions: body.contactInfo.specialInstructions || null,
-      requested_fulfillment_date: body.fulfillmentDate || null,
+      requested_fulfillment_date: body.fulfillmentDate 
+        ? (typeof body.fulfillmentDate === 'string' ? body.fulfillmentDate : body.fulfillmentDate.toISOString())
+        : null,
       subtotal: productTotal,
       addon_total: addonTotal,
       total: totalAmount,
