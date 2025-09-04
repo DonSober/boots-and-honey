@@ -8,13 +8,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { documentService } from '@/lib/documents/document-service'
 
-interface RouteParams {
-  params: {
-    orderId: string
-  }
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { orderId: string } }
+) {
   try {
     const { orderId } = params
 
