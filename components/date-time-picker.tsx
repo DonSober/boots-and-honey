@@ -63,7 +63,6 @@ export function DateTimePicker({ date, onDateChange, className, required }: Date
               className={`w-full justify-between font-normal h-[40px] px-3 py-2 text-sm border rounded-md focus:outline-[0.5px] focus:outline-blue-600 bg-white hover:bg-gray-50 shadow-none text-[rgba(77,84,97,1)] ${
                 required && !date ? 'border-red-300' : 'border-gray-300'
               }`}
-              required={required}
             >
               {date ? date.toLocaleDateString() : "Select date"}
               <ChevronDownIcon className="h-4 w-4" />

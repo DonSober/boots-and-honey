@@ -155,6 +155,16 @@ export default function PurchaseOrderPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
+    
+    // Validate fulfillment date is required
+    if (!fulfillmentDate) {
+      setSubmitMessage({
+        type: "error",
+        text: "Please select a requested fulfillment date",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/purchase-orders", {
