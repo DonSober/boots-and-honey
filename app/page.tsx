@@ -471,15 +471,17 @@ export default function PurchaseOrderPage() {
                         poNumber: e.target.value,
                       }))
                     }
+                    required
                   />
 
                   <div className="md:col-span-2">
                     <label className="text-sm font-medium px-px text-[rgba(77,84,97,1)]">
-                      Requested Fulfillment Date
+                      Requested Fulfillment Date *
                     </label>
                     <DateTimePicker
                       date={fulfillmentDate}
                       onDateChange={setFulfillmentDate}
+                      required
                     />
                   </div>
 
