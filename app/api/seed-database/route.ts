@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
-import { ProductInsert, AddonInsert } from '@/types/database'
+import { createServiceRoleClient } from '@/utils/supabase/service-role'
+import { Database } from '@/types/database-generated'
+
+type ProductInsert = Database['public']['Tables']['products']['Insert']
+type AddonInsert = Database['public']['Tables']['addons']['Insert']
 
 const products: ProductInsert[] = [
   {
@@ -40,7 +43,7 @@ const addons: AddonInsert[] = [
 
 export async function POST() {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
     
     // Seed products
     const { data: productData, error: productError } = await supabase

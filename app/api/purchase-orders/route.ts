@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { OrderInsert, OrderItemInsert, OrderAddonInsert } from '@/types/database'
+import { createServiceRoleClient } from '@/utils/supabase/service-role'
+import { Database } from '@/types/database-generated'
+
+type OrderInsert = Database['public']['Tables']['orders']['Insert']
+type OrderItemInsert = Database['public']['Tables']['order_items']['Insert']
+type OrderAddonInsert = Database['public']['Tables']['order_addons']['Insert']
 
 interface PurchaseOrderRequest {
   products: Array<{
@@ -28,15 +32,7 @@ interface PurchaseOrderRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-    
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
+    const supabase = createServiceRoleClient()
     
     const body: PurchaseOrderRequest = await request.json()
     
@@ -56,7 +52,7 @@ export async function POST(request: NextRequest) {
     // Fetch products from database to get accurate pricing  
     const productTypes = body.products
       .filter(p => p.quantity > 0)
-      .map(p => p.type.toLowerCase())
+      .map(p => p.type.toLowerCase() as Database['public']['Enums']['product_type_enum'])
       
     const { data: dbProducts, error: productsError } = await supabase
       .from('products')
@@ -133,7 +129,7 @@ export async function POST(request: NextRequest) {
       special_instructions: body.contactInfo.specialInstructions || null,
       requested_fulfillment_date: body.fulfillmentDate 
         ? (typeof body.fulfillmentDate === 'string' ? body.fulfillmentDate : body.fulfillmentDate.toISOString())
-        : null,
+        : new Date().toISOString(),
       subtotal: productTotal,
       addon_total: addonTotal,
       total: totalAmount,

@@ -8,12 +8,16 @@ import { FormField } from "@/components/ui/form-field";
 import { DateTimePicker } from "@/components/date-time-picker";
 import { SelectScrollable } from "@/components/ui/select-scrollable";
 import { FloatingCart } from "@/components/floating-cart";
-import { Product, Addon } from "@/types/database";
+import { Database } from "@/types/database-generated";
 import statesData from "@/data/states.json";
 
-interface ProductWithQuantity extends Product {
+type Product = Database['public']['Tables']['products']['Row']
+type Addon = Database['public']['Tables']['addons']['Row']
+
+interface ProductWithQuantity extends Omit<Product, 'features'> {
   quantity: number;
   icon: React.ComponentType<{ className?: string }>;
+  features: string | null;
   features_array: string[];
 }
 
