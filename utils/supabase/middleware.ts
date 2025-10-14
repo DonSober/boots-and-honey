@@ -53,8 +53,9 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
     const redirectRes = NextResponse.redirect(url)
-    // Preserve Supabase cookies set earlier
-    redirectRes.cookies.setAll(supabaseResponse.cookies.getAll())
+    // Preserve Supabase cookies set earlier (copy name/value)
+    const copied = supabaseResponse.cookies.getAll()
+    copied.forEach(({ name, value }) => redirectRes.cookies.set(name, value))
     return redirectRes
   }
 
