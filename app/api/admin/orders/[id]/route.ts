@@ -30,7 +30,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     }
 
     return NextResponse.json({ order, items: items ?? [], addons: addons ?? [] });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? "Unexpected error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unexpected error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

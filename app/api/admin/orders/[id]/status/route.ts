@@ -22,7 +22,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     // TODO: write to admin_audit_log once schema is finalized
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? "Unexpected error" }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unexpected error";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

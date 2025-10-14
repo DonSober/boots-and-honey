@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Database } from "@/types/database-generated";
+
+type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
+type OrderItemRow = Database["public"]["Tables"]["order_items"]["Row"];
+type OrderAddonRow = Database["public"]["Tables"]["order_addons"]["Row"];
 
 interface OrderDetailResponse {
-  order: any;
-  items: any[];
-  addons: any[];
+  order: OrderRow;
+  items: OrderItemRow[];
+  addons: OrderAddonRow[];
 }
 
 async function fetchOrder(id: string): Promise<OrderDetailResponse | null> {
