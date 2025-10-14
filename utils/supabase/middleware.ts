@@ -47,8 +47,18 @@ export async function updateSession(request: NextRequest) {
   // Get user session (required for session maintenance)
   await supabase.auth.getUser()
 
-  // Host-based routing convenience: if hitting admin subdomain root, redirect to /admin
+  // Block sign-up on admin.* and send to login instead
   const hostHeader = host
+  if (hostHeader.startsWith('admin.') && request.nextUrl.pathname.startsWith('/auth/sign-up')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/login'
+    const redirectRes = NextResponse.redirect(url)
+    const copied = supabaseResponse.cookies.getAll()
+    copied.forEach(({ name, value }) => redirectRes.cookies.set(name, value))
+    return redirectRes
+  }
+
+  // Host-based routing convenience: if hitting admin subdomain root, redirect to /admin
   if (hostHeader.startsWith('admin.') && request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
