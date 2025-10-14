@@ -19,8 +19,9 @@ async function fetchOrder(id: string): Promise<OrderDetailResponse | null> {
   return res.json();
 }
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
-  const data = await fetchOrder(params.id);
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const data = await fetchOrder(id);
   if (!data) notFound();
   const { order, items, addons } = data;
 
