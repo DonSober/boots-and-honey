@@ -6,6 +6,10 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const host = request.headers.get('host') || ''
+  const configuredDomain = process.env.AUTH_COOKIE_DOMAIN // e.g. .bootsandhoneyfarm.com
+  const shouldSetDomain = Boolean(configuredDomain && host.endsWith(configuredDomain.replace(/^\./, '')))
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,9 +23,16 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse = NextResponse.next({
             request,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+          cookiesToSet.forEach(({ name, value, options }) => {
+            const finalOptions = { ...options }
+            if (shouldSetDomain && configuredDomain) {
+              finalOptions.domain = configuredDomain
+              finalOptions.secure = true
+              // Lax works well across subdomains without CSRF issues for top-level navigations
+              finalOptions.sameSite = 'lax'
+            }
+            supabaseResponse.cookies.set(name, value, finalOptions)
+          })
         },
       },
     }
@@ -35,32 +46,6 @@ export async function updateSession(request: NextRequest) {
 
   // Get user session (required for session maintenance)
   await supabase.auth.getUser()
-
-  // Temporarily disabled authentication redirect
-  // if (
-  //   !user &&
-  //   !request.nextUrl.pathname.startsWith('/login') &&
-  //   !request.nextUrl.pathname.startsWith('/auth') &&
-  //   !request.nextUrl.pathname.startsWith('/error')
-  // ) {
-  //   // no user, potentially respond by redirecting the user to the login page
-  //   const url = request.nextUrl.clone()
-  //   url.pathname = '/login'
-  //   return NextResponse.redirect(url)
-  // }
-
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
 
   return supabaseResponse
 }

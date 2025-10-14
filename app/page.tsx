@@ -11,10 +11,10 @@ import { FloatingCart } from "@/components/floating-cart";
 import { Database } from "@/types/database-generated";
 import statesData from "@/data/states.json";
 
-type Product = Database['public']['Tables']['products']['Row']
-type Addon = Database['public']['Tables']['addons']['Row']
+type Product = Database["public"]["Tables"]["products"]["Row"];
+type Addon = Database["public"]["Tables"]["addons"]["Row"];
 
-interface ProductWithQuantity extends Omit<Product, 'features'> {
+interface ProductWithQuantity extends Omit<Product, "features"> {
   quantity: number;
   icon: React.ComponentType<{ className?: string }>;
   features: string | null;
@@ -41,7 +41,7 @@ interface ContactInfo {
 const states = statesData;
 
 const getIconForType = (
-  type: string
+  type: string,
 ): React.ComponentType<{ className?: string }> => {
   return type.toLowerCase() === "starter" ? LeafyGreen : Star;
 };
@@ -55,7 +55,7 @@ export default function PurchaseOrderPage() {
   const [fulfillmentDate, setFulfillmentDate] = useState<Date>();
   const [selectedState, setSelectedState] = useState("CA");
   const [deliveryAddon, setDeliveryAddon] = useState<AddonWithSelection | null>(
-    null
+    null,
   );
   const [isDeliveryHovered, setIsDeliveryHovered] = useState(false);
 
@@ -92,13 +92,13 @@ export default function PurchaseOrderPage() {
             (addon: Addon) => ({
               ...addon,
               selected: false,
-            })
+            }),
           );
           setAddons(addonsWithSelection);
 
           // Find delivery addon
           const delivery = addonsWithSelection.find(
-            (addon) => addon.name === "Delivery & Disposal"
+            (addon) => addon.name === "Delivery & Disposal",
           );
           if (delivery) {
             setDeliveryAddon(delivery);
@@ -120,7 +120,7 @@ export default function PurchaseOrderPage() {
     phone: "",
     address: "",
     city: "",
-    state: "",
+    state: "CA",
     zipCode: "",
     poNumber: "",
     specialInstructions: "",
@@ -131,15 +131,15 @@ export default function PurchaseOrderPage() {
       prev.map((product) =>
         product.id === productId
           ? { ...product, quantity: Math.max(0, newQuantity) }
-          : product
-      )
+          : product,
+      ),
     );
   };
 
   const calculateTotal = () => {
     const productTotal = products.reduce(
       (sum, product) => sum + product.price_per_bundle * product.quantity,
-      0
+      0,
     );
     const deliveryFee = deliveryAddon?.selected ? deliveryAddon.price : 0;
     return productTotal + deliveryFee;
@@ -155,7 +155,7 @@ export default function PurchaseOrderPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
-    
+
     // Validate fulfillment date is required
     if (!fulfillmentDate) {
       setSubmitMessage({
@@ -237,16 +237,16 @@ export default function PurchaseOrderPage() {
 
       <div className="w-full px-4 md:px-15 border-b-[rgba(217,231,247,1)] border-solid bg-[repeating-linear-gradient(315deg,rgba(217,231,247,1)_0_1px,transparent_1px_6px)]">
         {/* Section 1: Header and Product Tiers */}
-        <div className="flex w-full px-3 py-10 border border-x border-[rgba(217,231,247,1)] bg-[rgba(248,248,249,1)] flex-col items-center justify-start border-t-0 border-b-0 border-[rgba(217,231,247,1)] gap-6">
+        <div className="flex w-full px-3 py-10 border border-x border-[rgba(217,231,247,1)] bg-[rgba(248,248,249,1)] flex-col items-center justify-start border-t-0 border-b-0 gap-6">
           <div className="flex-column w-full max-w-125 h-fit px-4 space-y-2.5">
             <p className="text-xl/4 text-center text-[rgba(77,84,97,1)] font-semibold">
               Purchase Order
             </p>
-            <p className="text-sm/3 text-center text-[rgba(77,84,97,1)] text-base">
-              {new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            <p className="text-base/3 text-center text-[rgba(77,84,97,1)]">
+              {new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </p>
           </div>
@@ -258,17 +258,20 @@ export default function PurchaseOrderPage() {
           ) : (
             <form
               onSubmit={handleSubmit}
-              className="w-full max-w-125 space-y-4">
+              className="w-full max-w-125 space-y-4"
+            >
               <div className="w-full space-y-4">
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="flex-col p-4 md:p-6 space-y-4 border border-[rgba(217,231,247,1)] bg-[rgba(250,250,250,0.8)] rounded-lg gap-2.5">
+                    className="flex-col p-4 md:p-6 space-y-4 border border-[rgba(217,231,247,1)] bg-[rgba(250,250,250,0.8)] rounded-lg gap-2.5"
+                  >
                     <div className="flex w-full px-1 justify-between">
                       <div className="flex gap-1.5">
                         <product.icon className="w-4 h-4 stroke-2 text-[rgba(77,84,97,1)] self-center" />
                         <p className="text-sm font-medium text-[rgba(77,84,97,1)] self-center">
-                          {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
+                          {product.type.charAt(0).toUpperCase() +
+                            product.type.slice(1)}
                         </p>{" "}
                       </div>
                       <div className="flex w-fit space-x-0.5">
@@ -293,7 +296,8 @@ export default function PurchaseOrderPage() {
                       {product.features_array.map((feature, index) => (
                         <div
                           key={index}
-                          className="flex gap-x-1 md:gap-x-2 w-fit md:max-w-none">
+                          className="flex gap-x-1 md:gap-x-2 w-fit md:max-w-none"
+                        >
                           <Check className="w-4 h-4 stroke-[1.5] md:w-5 md:h-5 md:stroke-[1.75] text-[rgba(77,84,97,1)] self-center" />
                           <span className="text-[rgba(77,84,97,1)] text-xs md:text-sm self-center">
                             {feature}
@@ -305,11 +309,12 @@ export default function PurchaseOrderPage() {
                     <div className="inline-flex w-full h-fit p-2 justify-between space-x-2 rounded-md bg-[rgba(249,249,249,1)] border border-[rgba(225,225,225,1)]">
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center w-16 h-10 bg-white border rounded-md shadow shadow-[0px_2px_0px_0px_rgba(4,82,207,0.5)] hover:bg-blue-100 focus:outline-none disabled:opacity-50 border-[rgba(4,82,207,0.5)] cursor-pointer"
+                        className="inline-flex items-center justify-center w-16 h-10 bg-white border rounded-md shadow-[0px_2px_0px_0px_rgba(4,82,207,0.5)] hover:bg-blue-100 focus:outline-none disabled:opacity-50 border-[rgba(4,82,207,0.5)] cursor-pointer"
                         onClick={() =>
                           updateQuantity(product.id, product.quantity - 1)
                         }
-                        disabled={product.quantity <= 0}>
+                        disabled={product.quantity <= 0}
+                      >
                         <Minus className="w-5 h-5 text-[rgba(77,84,97,1)]" />
                       </button>
                       <input
@@ -335,10 +340,11 @@ export default function PurchaseOrderPage() {
                       />
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center w-16 h-10 bg-white border rounded-md shadow shadow-[0px_2px_0px_0px_rgba(4,82,207,0.5)] hover:bg-blue-100 focus:outline-none disabled:opacity-50 border-[rgba(4,82,207,0.5)] cursor-pointer"
+                        className="inline-flex items-center justify-center w-16 h-10 bg-white border rounded-md shadow-[0px_2px_0px_0px_rgba(4,82,207,0.5)] hover:bg-blue-100 focus:outline-none disabled:opacity-50 border-[rgba(4,82,207,0.5)] cursor-pointer"
                         onClick={() =>
                           updateQuantity(product.id, product.quantity + 1)
-                        }>
+                        }
+                      >
                         <Plus className="w-5 h-5 text-[rgba(77,84,97,1)]" />
                       </button>
                     </div>
@@ -545,15 +551,17 @@ export default function PurchaseOrderPage() {
                       })
                     }
                     onMouseEnter={() => setIsDeliveryHovered(true)}
-                    onMouseLeave={() => setIsDeliveryHovered(false)}>
+                    onMouseLeave={() => setIsDeliveryHovered(false)}
+                  >
                     <span
                       key={`${deliveryAddon?.selected}-${isDeliveryHovered}`}
-                      className="inline-block transition-all duration-300 ease-out">
+                      className="inline-block transition-all duration-300 ease-out"
+                    >
                       {deliveryAddon?.selected
                         ? "Remove"
                         : isDeliveryHovered
-                        ? "Add to Order"
-                        : `$${deliveryAddon?.price || 0} /order`}
+                          ? "Add to Order"
+                          : `$${deliveryAddon?.price || 0} /order`}
                     </span>
                   </button>
                   <p className="px-3 mt-2 text-xs text-center font-medium text-[rgba(143,149,160,1)]">
@@ -565,7 +573,8 @@ export default function PurchaseOrderPage() {
               {/* Order Summary - Restored */}
               <div
                 ref={orderSummaryRef}
-                className="flex-col w-full max-w-125 p-4 md:p-6 border border-[rgba(217,231,247,1)] bg-[rgba(250,250,250,0.8)] rounded-lg gap-2.5">
+                className="flex-col w-full max-w-125 p-4 md:p-6 border border-[rgba(217,231,247,1)] bg-[rgba(250,250,250,0.8)] rounded-lg gap-2.5"
+              >
                 <h3 className="px-1 font-semibold text-2xl tracking-tight text-[rgba(77,84,97,1)] self-center">
                   Order Summary
                 </h3>
@@ -581,7 +590,7 @@ export default function PurchaseOrderPage() {
                   <div className="border-b border-gray-200"></div>
                   {(() => {
                     const visibleProducts = products.filter(
-                      (product) => product.quantity > 0
+                      (product) => product.quantity > 0,
                     );
                     const hasDelivery = deliveryAddon?.selected || false;
 
@@ -592,7 +601,8 @@ export default function PurchaseOrderPage() {
                             <div className="flex justify-between py-4">
                               <div className="flex flex-col">
                                 <span className="w-fit font-medium text-sm text-[rgba(77,84,97,1)]">
-                                  {product.type.charAt(0).toUpperCase() + product.type.slice(1)}
+                                  {product.type.charAt(0).toUpperCase() +
+                                    product.type.slice(1)}
                                 </span>
                                 <span className="text-xs text-[rgba(127,138,148,1)] self-center">
                                   {product.quantity} bundle
@@ -628,7 +638,7 @@ export default function PurchaseOrderPage() {
                                         year: "numeric",
                                         month: "long",
                                         day: "numeric",
-                                      }
+                                      },
                                     )}{" "}
                                     @{" "}
                                     {fulfillmentDate.toLocaleTimeString(
@@ -637,7 +647,7 @@ export default function PurchaseOrderPage() {
                                         hour: "numeric",
                                         minute: "2-digit",
                                         hour12: true,
-                                      }
+                                      },
                                     )}
                                   </span>
                                 )}
@@ -660,13 +670,15 @@ export default function PurchaseOrderPage() {
                       submitMessage.type === "success"
                         ? "bg-green-50 border border-green-200"
                         : "bg-red-50 border border-red-200"
-                    }`}>
+                    }`}
+                  >
                     <p
                       className={`text-sm ${
                         submitMessage.type === "success"
                           ? "text-green-800"
                           : "text-red-800"
-                      }`}>
+                      }`}
+                    >
                       {submitMessage.text}
                     </p>
                   </div>
@@ -685,7 +697,8 @@ export default function PurchaseOrderPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[rgba(4,82,207,1)] text-white py-2 px-4 rounded-md font-medium text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                    className="w-full bg-[rgba(4,82,207,1)] text-white py-2 px-4 rounded-md font-medium text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>
 

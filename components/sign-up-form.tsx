@@ -40,11 +40,12 @@ export function SignUpForm({
     }
 
     try {
+      const isAdminHost = typeof window !== "undefined" && window.location.hostname.startsWith("admin.");
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: `${window.location.origin}${isAdminHost ? "/admin" : "/protected"}`,
         },
       });
       if (error) throw error;
