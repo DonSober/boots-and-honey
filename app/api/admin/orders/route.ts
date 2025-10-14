@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceRoleClient } from "@/utils/supabase/service-role";
 import { AdminOrder, OrderStatus } from "@/packages/types/src";
@@ -11,7 +11,7 @@ const Query = z.object({
   sort: z.enum(["createdAt-desc", "createdAt-asc"]).default("createdAt-desc"),
 });
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const supabase = createServiceRoleClient();
     const params = Object.fromEntries(new URL(request.url).searchParams);

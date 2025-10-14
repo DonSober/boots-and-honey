@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/utils/supabase/service-role";
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   try {
     const supabase = createServiceRoleClient();
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (orderError || !order) {
@@ -18,12 +19,12 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     const { data: items, error: itemsError } = await supabase
       .from("order_items")
       .select("*")
-      .eq("order_id", params.id);
+      .eq("order_id", id);
 
     const { data: addons, error: addonsError } = await supabase
       .from("order_addons")
       .select("*")
-      .eq("order_id", params.id);
+      .eq("order_id", id);
 
     if (itemsError || addonsError) {
       return NextResponse.json({ error: itemsError?.message || addonsError?.message }, { status: 500 });

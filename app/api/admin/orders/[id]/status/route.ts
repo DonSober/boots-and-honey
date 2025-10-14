@@ -1,19 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceRoleClient } from "@/utils/supabase/service-role";
 import { OrderStatus } from "@/packages/types/src";
 
 const Body = z.object({ status: OrderStatus });
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const body = Body.parse(await req.json());
     const supabase = createServiceRoleClient();
 
     const { error } = await supabase
       .from("orders")
       .update({ status: body.status })
-      .eq("id", params.id);
+      .eq("id", id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
