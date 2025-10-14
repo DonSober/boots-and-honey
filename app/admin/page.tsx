@@ -18,7 +18,6 @@ export default async function AdminOrdersPage() {
     <main>
       <h1>Orders</h1>
       {/* Unstyled table. If you want styling later, we can plug your design system. */}
-      {/* @ts-expect-error Server Component passing to Client Component */}
       <OrdersTableServerBridge data={orders} />
     </main>
   );
