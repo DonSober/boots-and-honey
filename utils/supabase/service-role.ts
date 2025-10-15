@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/types/database-generated'
+import { AppDatabase } from '@/lib/supabase-types'
 
 export const createServiceRoleClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -9,7 +9,7 @@ export const createServiceRoleClient = () => {
     throw new Error('Missing Supabase credentials for service role client')
   }
 
-  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+  return createClient<AppDatabase>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
