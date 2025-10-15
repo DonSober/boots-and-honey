@@ -1,4 +1,6 @@
-import { createServerClient } from '@supabase/ssr'
+// Import only the server client to avoid bundling browser/realtime code in Edge runtime
+// Deep import prevents Next from pulling in createBrowserClient (which triggers Node APIs)
+import { createServerClient } from '@supabase/ssr/dist/module/createServerClient'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
