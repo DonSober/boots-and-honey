@@ -1,3 +1,164 @@
+-- Profiles table for business info (run this in Supabase SQL editor)
+create table if not exists public.profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  business_name text not null,
+  website text,
+  phone text,
+  is_complete boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+-- RLS: users can access only their own row
+create policy if not exists "profiles_select_own" on public.profiles for select
+using (user_id = auth.uid());
+
+create policy if not exists "profiles_insert_own" on public.profiles for insert
+with check (user_id = auth.uid());
+
+create policy if not exists "profiles_update_own" on public.profiles for update
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+-- ============================================================================
+-- Phase 1 — Schema: canonical Account & Contact + Orders FKs (idempotent)
+-- ============================================================================
+-- Extensions (safe if already enabled)
+create extension if not exists citext;
+create extension if not exists pg_trgm;
+create extension if not exists pgcrypto;
+
+-- Accounts (organizations) with normalized name for matching & search
+create table if not exists public.accounts (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  normalized_name citext not null unique,
+  verified boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create or replace function public.normalize_account_name(raw text)
+returns text language sql immutable as $$
+  select regexp_replace(lower(trim(raw)), '(\\s+(inc|llc|ltd|co|corp|corporation|company|limited)\\.?)+$', '', 'gi')
+$$;
+
+create or replace function public.accounts_before_ins_upd()
+returns trigger language plpgsql as $$
+begin
+  new.normalized_name := public.normalize_account_name(new.name);
+  new.updated_at := now();
+  return new;
+end; $$;
+
+drop trigger if exists trg_accounts_norm on public.accounts;
+create trigger trg_accounts_norm before insert or update on public.accounts
+for each row execute function public.accounts_before_ins_upd();
+
+-- Contacts (people) keyed by case-insensitive email
+create table if not exists public.contacts (
+  id uuid primary key default gen_random_uuid(),
+  email citext not null unique,
+  user_id uuid references auth.users(id) on delete set null,
+  business_name text,
+  phone text,
+  first_seen_at timestamptz not null default now(),
+  last_seen_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create or replace function public.touch_contact_ts()
+returns trigger language plpgsql as $$
+begin
+  if TG_OP = 'UPDATE' then new.updated_at := now(); end if;
+  return new;
+end; $$;
+
+drop trigger if exists trg_contacts_ts on public.contacts;
+create trigger trg_contacts_ts before update on public.contacts
+for each row execute function public.touch_contact_ts();
+
+-- Optional mapping if a Contact can belong to multiple Accounts (can defer)
+create table if not exists public.account_contacts (
+  account_id uuid not null references public.accounts(id) on delete cascade,
+  contact_id uuid not null references public.contacts(id) on delete cascade,
+  role text default 'member',
+  primary key (account_id, contact_id)
+);
+
+-- Orders: add FKs for account/contact (keep existing snapshot columns)
+do $$
+begin
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema='public' and table_name='orders' and column_name='account_id'
+  ) then
+    alter table public.orders add column account_id uuid references public.accounts(id);
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema='public' and table_name='orders' and column_name='contact_id'
+  ) then
+    alter table public.orders add column contact_id uuid references public.contacts(id);
+  end if;
+end$$;
+
+create index if not exists idx_orders_account_id on public.orders(account_id);
+create index if not exists idx_orders_contact_id on public.orders(contact_id);
+create index if not exists idx_accounts_normalized_name_trgm on public.accounts using gin (normalized_name gin_trgm_ops);
+
+-- Optional RLS if you will query contacts client-side (admin uses service role)
+-- alter table public.contacts enable row level security;
+-- do $$ begin
+--   if not exists (
+--     select 1 from pg_policies where schemaname='public' and tablename='contacts' and policyname='contacts_select_own'
+--   ) then
+--     create policy "contacts_select_own" on public.contacts for select using (user_id = auth.uid());
+--   end if;
+--   if not exists (
+--     select 1 from pg_policies where schemaname='public' and tablename='contacts' and policyname='contacts_update_own'
+--   ) then
+--     create policy "contacts_update_own" on public.contacts for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+--   end if;
+-- end $$;
+
+-- ============================================================================
+-- Phase 3 — Backfill existing data (non-destructive)
+-- ============================================================================
+-- Seed Accounts from orders.company_name
+insert into public.accounts (name)
+select distinct company_name
+from public.orders
+where company_name is not null and company_name <> ''
+on conflict (normalized_name) do nothing;
+
+-- Seed Contacts from orders.email
+insert into public.contacts (email, business_name, last_seen_at)
+select distinct lower(email)::citext, null, max(created_at)
+from public.orders
+where email is not null and email <> ''
+group by lower(email)
+on conflict (email) do update set last_seen_at = excluded.last_seen_at;
+
+-- Link Orders to Accounts
+update public.orders o
+set account_id = a.id
+from public.accounts a
+where o.company_name is not null
+  and a.normalized_name = public.normalize_account_name(o.company_name)
+  and o.account_id is null;
+
+-- Link Orders to Contacts
+update public.orders o
+set contact_id = c.id
+from public.contacts c
+where o.email is not null
+  and lower(o.email) = lower(c.email)
+  and o.contact_id is null;
+
 -- =============================================================================
 -- FUTURE ARCHITECTURE SCAFFOLD - Agricultural B2B System
 --

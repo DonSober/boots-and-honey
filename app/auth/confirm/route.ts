@@ -17,14 +17,30 @@ export async function GET(request: NextRequest) {
       token_hash,
     });
     if (!error) {
-      // redirect user to specified redirect URL or root of app
+      // After verification, ensure profile is complete before honoring "next".
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("is_complete")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        // If table exists and profile is missing or incomplete, go to onboarding
+        if (!profileError && (!profile || !profile.is_complete)) {
+          redirect("/onboarding");
+        }
+        // If the table doesn't exist yet or query fails, fall through to next
+      }
+
       redirect(next);
     } else {
-      // redirect the user to an error page with some instructions
       redirect(`/auth/error?error=${error?.message}`);
     }
   }
 
-  // redirect the user to an error page with some instructions
   redirect(`/auth/error?error=No token hash or type`);
 }

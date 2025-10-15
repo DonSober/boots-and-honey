@@ -114,7 +114,36 @@ export async function POST(request: NextRequest) {
     
     const totalAmount = productTotal + addonTotal
     
-    // Insert order
+    // Linkage (Phase 2): upsert Contact by email and Account by company_name
+    const emailLower = body.contactInfo.email?.toLowerCase()
+
+    let contactId: string | null = null
+    if (emailLower) {
+      const { data: contactRow } = await supabase
+        .from('contacts')
+        .upsert(
+          { email: emailLower, business_name: body.contactInfo.companyName || null, phone: body.contactInfo.phone || null },
+          { onConflict: 'email' }
+        )
+        .select('id')
+        .single()
+      contactId = contactRow?.id ?? null
+    }
+
+    let accountId: string | null = null
+    if (body.contactInfo.companyName) {
+      const { data: accountRow } = await supabase
+        .from('accounts')
+        .upsert(
+          { name: body.contactInfo.companyName },
+          { onConflict: 'normalized_name' }
+        )
+        .select('id')
+        .single()
+      accountId = accountRow?.id ?? null
+    }
+
+    // Insert order (snapshots retained)
     const orderInsert: OrderInsert = {
       order_number: orderNumber,
       company_name: body.contactInfo.companyName,
@@ -141,6 +170,19 @@ export async function POST(request: NextRequest) {
       .insert(orderInsert)
       .select()
       .single()
+
+    // Set foreign keys if we created/found them (types may lag, so cast)
+    if (order && (accountId || contactId)) {
+      const updatePayload: Record<string, string> = {}
+      if (accountId) updatePayload['account_id'] = accountId
+      if (contactId) updatePayload['contact_id'] = contactId
+      if (Object.keys(updatePayload).length > 0) {
+        await supabase
+          .from('orders')
+          .update(updatePayload as never)
+          .eq('id', order.id)
+      }
+    }
 
     if (orderError) {
       return NextResponse.json(
