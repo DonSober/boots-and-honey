@@ -12,17 +12,12 @@ import { Database } from "@/types/database-generated";
 import statesData from "@/data/states.json";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
-type Addon = Database["public"]["Tables"]["addons"]["Row"];
 
 interface ProductWithQuantity extends Omit<Product, "features"> {
   quantity: number;
   icon: React.ComponentType<{ className?: string }>;
   features: string | null;
   features_array: string[];
-}
-
-interface AddonWithSelection extends Addon {
-  selected: boolean;
 }
 
 interface ContactInfo {
@@ -39,6 +34,7 @@ interface ContactInfo {
 }
 
 const states = statesData;
+const DELIVERY_PRICE = 99; // keep in sync with backend/config
 
 const getIconForType = (
   type: string,
@@ -49,17 +45,14 @@ const getIconForType = (
 export default function PurchaseOrderPage() {
   const orderSummaryRef = useRef<HTMLDivElement>(null);
   const [products, setProducts] = useState<ProductWithQuantity[]>([]);
-  const [, setAddons] = useState<AddonWithSelection[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [fulfillmentDate, setFulfillmentDate] = useState<Date>();
   const [selectedState, setSelectedState] = useState("CA");
-  const [deliveryAddon, setDeliveryAddon] = useState<AddonWithSelection | null>(
-    null,
-  );
+  const [deliverySelected, setDeliverySelected] = useState(false);
   const [isDeliveryHovered, setIsDeliveryHovered] = useState(false);
 
-  // Fetch products and addons from API
+  // Fetch products from API
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -81,28 +74,6 @@ export default function PurchaseOrderPage() {
                   : product.features || [],
             }));
           setProducts(productsWithQuantity);
-        }
-
-        // Fetch addons
-        const addonsResponse = await fetch("/api/addons");
-        const addonsData = await addonsResponse.json();
-
-        if (addonsData.success) {
-          const addonsWithSelection: AddonWithSelection[] = addonsData.data.map(
-            (addon: Addon) => ({
-              ...addon,
-              selected: false,
-            }),
-          );
-          setAddons(addonsWithSelection);
-
-          // Find delivery addon
-          const delivery = addonsWithSelection.find(
-            (addon) => addon.name === "Delivery & Disposal",
-          );
-          if (delivery) {
-            setDeliveryAddon(delivery);
-          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -141,7 +112,7 @@ export default function PurchaseOrderPage() {
       (sum, product) => sum + product.price_per_bundle * product.quantity,
       0,
     );
-    const deliveryFee = deliveryAddon?.selected ? deliveryAddon.price : 0;
+    const deliveryFee = deliverySelected ? DELIVERY_PRICE : 0;
     return productTotal + deliveryFee;
   };
 
@@ -176,7 +147,7 @@ export default function PurchaseOrderPage() {
           products,
           contactInfo,
           fulfillmentDate,
-          deliverySelected: deliveryAddon?.selected || false,
+          deliverySelected,
         }),
       });
 
@@ -202,9 +173,7 @@ export default function PurchaseOrderPage() {
           specialInstructions: "",
         });
         setFulfillmentDate(undefined);
-        if (deliveryAddon) {
-          setDeliveryAddon({ ...deliveryAddon, selected: false });
-        }
+        setDeliverySelected(false);
       } else {
         setSubmitMessage({
           type: "error",
@@ -520,55 +489,49 @@ export default function PurchaseOrderPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col max-w-125 p-4 md:p-6 py-6 space-y-5 border border-green-200 rounded-lg items-center bg-linear-to-b from-[#B7FFE6] to-[#B7FFE6]/0">
-                <div className="flex flex-col space-y-2 items-start">
-                  <div className="inline-flex w-fit space-x-2">
-                    <h3 className="px-1 font-semibold text-2xl tracking-tight text-[rgba(77,84,97,1)] self-center">
-                      Delivery & Disposal
-                    </h3>
-                    <div className="rounded-full bg-[rgba(65,209,159,1)] py-0.5 px-2 border border-transparent text-xs text-white font-semibold self-center">
-                      ADD-ON
+                <div className="flex flex-col max-w-125 p-4 md:p-6 py-6 space-y-5 border border-green-200 rounded-lg items-center bg-linear-to-b from-[#B7FFE6] to-[#B7FFE6]/0">
+                  <div className="flex flex-col space-y-2 items-start">
+                    <div className="inline-flex w-fit space-x-2">
+                      <h3 className="px-1 font-semibold text-2xl tracking-tight text-[rgba(77,84,97,1)] self-center">
+                        Delivery & Disposal
+                      </h3>
+                      <div className="rounded-full bg-[rgba(65,209,159,1)] py-0.5 px-2 border border-transparent text-xs text-white font-semibold self-center">
+                        ADD-ON
+                      </div>
                     </div>
+                    <p className="mt-1 px-1 font-normal text-sm text-[rgba(143,149,160,1)]">
+                      Full service delivery and pulp disposal. Help reduce waste
+                      in landfills & contribute to enriching farmlands.
+                    </p>
                   </div>
-                  <p className="mt-1 px-1 font-normal text-sm text-[rgba(143,149,160,1)]">
-                    Full service delivery and pulp disposal. Help reduce waste
-                    in landfills & contribute to enriching farmlands.
-                  </p>
-                </div>
-                <div className="flex-col w-full space-y-1">
-                  <button
-                    type="button"
-                    className={`w-full px-4 py-2 rounded-md font-medium transition-all duration-200 ease-out text-white border border-transparent bg-[rgba(65,209,159,1)] relative overflow-hidden cursor-pointer ${
-                      deliveryAddon?.selected
+                  <div className="flex-col w-full space-y-1">
+                    <button
+                      type="button"
+                      className={`w-full px-4 py-2 rounded-md font-medium transition-all duration-200 ease-out text-white border border-transparent bg-[rgba(65,209,159,1)] relative overflow-hidden cursor-pointer ${
+                      deliverySelected
                         ? "bg-[rgba(15,89,63,1)] hover:bg-emerald-300/25 hover:border-emerald-500 hover:text-emerald-500"
                         : "bg-[rgba(15,89,63,1)] hover:bg-emerald-300/25 hover:border-emerald-500 hover:text-emerald-500"
                     }`}
-                    onClick={() =>
-                      deliveryAddon &&
-                      setDeliveryAddon({
-                        ...deliveryAddon,
-                        selected: !deliveryAddon.selected,
-                      })
-                    }
-                    onMouseEnter={() => setIsDeliveryHovered(true)}
-                    onMouseLeave={() => setIsDeliveryHovered(false)}
-                  >
-                    <span
-                      key={`${deliveryAddon?.selected}-${isDeliveryHovered}`}
-                      className="inline-block transition-all duration-300 ease-out"
+                      onClick={() => setDeliverySelected(prev => !prev)}
+                      onMouseEnter={() => setIsDeliveryHovered(true)}
+                      onMouseLeave={() => setIsDeliveryHovered(false)}
                     >
-                      {deliveryAddon?.selected
-                        ? "Remove"
-                        : isDeliveryHovered
-                          ? "Add to Order"
-                          : `$${deliveryAddon?.price || 0} /order`}
-                    </span>
-                  </button>
-                  <p className="px-3 mt-2 text-xs text-center font-medium text-[rgba(143,149,160,1)]">
-                    Must be within 50 miles of 92003
-                  </p>
+                      <span
+                        key={`${deliverySelected}-${isDeliveryHovered}`}
+                        className="inline-block transition-all duration-300 ease-out"
+                      >
+                        {deliverySelected
+                          ? "Remove"
+                          : isDeliveryHovered
+                            ? "Add to Order"
+                            : `$${DELIVERY_PRICE} /order`}
+                      </span>
+                    </button>
+                    <p className="px-3 mt-2 text-xs text-center font-medium text-[rgba(143,149,160,1)]">
+                      Must be within 50 miles of 92003
+                    </p>
+                  </div>
                 </div>
-              </div>
 
               {/* Order Summary - Restored */}
               <div
@@ -592,7 +555,7 @@ export default function PurchaseOrderPage() {
                     const visibleProducts = products.filter(
                       (product) => product.quantity > 0,
                     );
-                    const hasDelivery = deliveryAddon?.selected || false;
+                    const hasDelivery = deliverySelected;
 
                     return (
                       <>
@@ -622,7 +585,7 @@ export default function PurchaseOrderPage() {
                           </div>
                         ))}
 
-                        {deliveryAddon?.selected && (
+                        {deliverySelected && (
                           <div className="space-y-1">
                             <div className="flex justify-between py-4">
                               <div className="flex flex-col">
@@ -653,7 +616,7 @@ export default function PurchaseOrderPage() {
                                 )}
                               </div>
                               <span className="font-medium text-[rgba(77,84,97,1)] text-sm self-center">
-                                ${deliveryAddon?.price}
+                                ${DELIVERY_PRICE}
                               </span>
                             </div>
                             {/* No separator line after the last item */}
@@ -716,7 +679,7 @@ export default function PurchaseOrderPage() {
       {/* Floating Cart */}
       <FloatingCart
         products={products}
-        deliverySelected={deliveryAddon?.selected || false}
+        deliverySelected={deliverySelected}
         total={calculateTotal()}
         orderSummaryRef={orderSummaryRef}
       />
