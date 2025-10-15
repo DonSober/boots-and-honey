@@ -174,7 +174,9 @@ export async function POST(request: NextRequest) {
       subtotal: productTotal,
       addon_total: addonTotal,
       total: totalAmount,
-      status: 'pending'
+      status: 'pending',
+      account_id: accountId ?? null,
+      contact_id: contactId ?? null,
     }
     
     const { data: order, error: orderError } = await supabase
@@ -182,19 +184,6 @@ export async function POST(request: NextRequest) {
       .insert(orderInsert)
       .select()
       .single()
-
-    // Set foreign keys if we created/found them (types may lag, so cast)
-    if (order && (accountId || contactId)) {
-      const updatePayload: Record<string, string> = {}
-      if (accountId) updatePayload['account_id'] = accountId
-      if (contactId) updatePayload['contact_id'] = contactId
-      if (Object.keys(updatePayload).length > 0) {
-        await supabase
-          .from('orders')
-          .update(updatePayload as never)
-          .eq('id', order.id)
-      }
-    }
 
     if (orderError) {
       return NextResponse.json(
