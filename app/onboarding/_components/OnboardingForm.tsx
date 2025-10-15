@@ -27,7 +27,7 @@ export default function OnboardingForm() {
       }
       // Go to the app home or anywhere else appropriate
       window.location.href = "/protected";
-    } catch (err) {
+    } catch {
       setError("Network error");
     } finally {
       setIsSaving(false);
