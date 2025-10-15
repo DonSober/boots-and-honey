@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceRoleClient } from "@/utils/supabase/service-role";
 import { OrderStatus } from "@/packages/types/src";
+import type { AppDatabase } from "@/lib/supabase-types";
 
 const Body = z.object({ status: OrderStatus });
+
+type OrderUpdate = AppDatabase["public"]["Tables"]["orders"]["Update"];
 
 export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -11,9 +14,11 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     const body = Body.parse(await req.json());
     const supabase = createServiceRoleClient();
 
+    const updatePayload: OrderUpdate = { status: body.status } as unknown as OrderUpdate;
+
     const { error } = await supabase
       .from("orders")
-      .update({ status: body.status })
+      .update(updatePayload)
       .eq("id", id);
 
     if (error) {
