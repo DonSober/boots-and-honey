@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/utils/supabase/service-role'
 import { Database } from '@/types/database-generated'
 
+// Mirror the SQL normalize_account_name behavior
+function normalizeAccountName(raw: string): string {
+  return raw
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/(\s+(inc|llc|ltd|co|corp|corporation|company|limited)\.?)+$/gi, '')
+    .trim()
+}
+
 type OrderInsert = Database['public']['Tables']['orders']['Insert']
 type OrderItemInsert = Database['public']['Tables']['order_items']['Insert']
 type OrderAddonInsert = Database['public']['Tables']['order_addons']['Insert']
@@ -132,10 +142,12 @@ export async function POST(request: NextRequest) {
 
     let accountId: string | null = null
     if (body.contactInfo.companyName) {
+      const name = body.contactInfo.companyName
+      const normalized_name = normalizeAccountName(name)
       const { data: accountRow } = await supabase
         .from('accounts')
         .upsert(
-          { name: body.contactInfo.companyName },
+          { name, normalized_name },
           { onConflict: 'normalized_name' }
         )
         .select('id')
