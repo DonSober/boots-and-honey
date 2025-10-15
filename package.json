@@ -11,7 +11,8 @@
     "security:fix": "tsx scripts/apply-security-fixes.ts",
     "migrate": "tsx scripts/run-migration.ts",
     "test:phase1": "tsx scripts/test-phase1.ts",
-    "test:phase2": "tsx scripts/test-phase2.ts"
+    "test:phase2": "tsx scripts/test-phase2.ts",
+    "typegen": "npx --yes supabase@latest gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > types/database-generated.ts"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.16",

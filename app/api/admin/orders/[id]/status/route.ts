@@ -6,19 +6,16 @@ import type { AppDatabase } from "@/lib/supabase-types";
 
 const Body = z.object({ status: OrderStatus });
 
-type OrderUpdate = AppDatabase["public"]["Tables"]["orders"]["Update"];
-
 export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
     const body = Body.parse(await req.json());
     const supabase = createServiceRoleClient();
 
-    const updatePayload: OrderUpdate = { status: body.status } as unknown as OrderUpdate;
-
+    // Strictly typed update; ensure types are regenerated after schema changes
     const { error } = await supabase
       .from("orders")
-      .update(updatePayload)
+      .update({ status: body.status })
       .eq("id", id);
 
     if (error) {

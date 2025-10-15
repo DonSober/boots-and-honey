@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          normalized_name: string
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          normalized_name: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          normalized_name?: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
       addons: {
         Row: {
           created_at: string
@@ -57,6 +84,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contacts: {
+        Row: {
+          business_name: string | null
+          created_at: string
+          email: string
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          phone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          created_at?: string
+          email: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          created_at?: string
+          email?: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       delivery_zones: {
         Row: {
@@ -292,10 +355,12 @@ export type Database = {
       }
       orders: {
         Row: {
+          account_id: string | null
           addon_total: number
           business_address: string | null
           city: string | null
           company_name: string
+          contact_id: string | null
           contact_name: string
           created_at: string
           email: string
@@ -313,10 +378,12 @@ export type Database = {
           zip_code: string | null
         }
         Insert: {
+          account_id?: string | null
           addon_total?: number
           business_address?: string | null
           city?: string | null
           company_name: string
+          contact_id?: string | null
           contact_name: string
           created_at?: string
           email: string
@@ -334,10 +401,12 @@ export type Database = {
           zip_code?: string | null
         }
         Update: {
+          account_id?: string | null
           addon_total?: number
           business_address?: string | null
           city?: string | null
           company_name?: string
+          contact_id?: string | null
           contact_name?: string
           created_at?: string
           email?: string
@@ -354,7 +423,22 @@ export type Database = {
           updated_at?: string
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -386,6 +470,36 @@ export type Database = {
           price_per_bundle?: number
           type?: Database["public"]["Enums"]["product_type_enum"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          business_name: string
+          created_at: string
+          is_complete: boolean
+          phone: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          business_name: string
+          created_at?: string
+          is_complete?: boolean
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          business_name?: string
+          created_at?: string
+          is_complete?: boolean
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -439,9 +553,69 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      citext: {
+        Args: { "": boolean } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      citext_hash: {
+        Args: { "": string }
+        Returns: number
+      }
+      citextin: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextout: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      citextrecv: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextsend: {
+        Args: { "": string }
+        Returns: string
+      }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      normalize_account_name: {
+        Args: { raw: string }
+        Returns: string
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
     }
     Enums: {
