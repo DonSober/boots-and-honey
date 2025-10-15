@@ -3,6 +3,15 @@ import { z } from "zod";
 import { createServiceRoleClient } from "@/utils/supabase/service-role";
 import { AdminOrder, OrderStatus } from "@/packages/types/src";
 
+function normalizeAccountName(raw: string): string {
+  return raw
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/(\s+(inc|llc|ltd|co|corp|corporation|company|limited)\.?)+$/gi, "")
+    .trim();
+}
+
 const Query = z.object({
   q: z.string().optional(),
   status: OrderStatus.optional(),
@@ -17,16 +26,23 @@ export async function GET(request: Request) {
     const params = Object.fromEntries(new URL(request.url).searchParams);
     const q = Query.parse(params);
 
+    const baseSelect =
+      "id, order_number, company_name, email, total, status, created_at" +
+      (q.q ? ", accounts!inner(name, normalized_name)" : ", accounts(name, normalized_name)");
+
     let query = supabase
       .from("orders")
-      .select("id, order_number, company_name, email, total, status, created_at")
+      .select(baseSelect)
       .limit(q.limit);
 
     if (q.status) query = query.eq("status", q.status);
     if (q.q) {
       const term = `%${q.q}%`;
-      // Basic OR filter via embedded filter groups is not directly supported; use ilike and filter by one column for simplicity
-      query = query.ilike("company_name", term);
+      const normalized = normalizeAccountName(q.q);
+      // Prefer normalized match; fallback to name substring
+      query = query
+        .ilike("accounts.normalized_name", `${normalized}%`)
+        .or(`ilike(accounts.name,${term})`);
     }
 
     const ascending = q.sort === "createdAt-asc";
@@ -41,9 +57,6 @@ export async function GET(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
-    // Optional validation (kept minimal to avoid over-investing in schema coupling)
-    // AdminOrder.array().parse(data)
 
     return NextResponse.json({ orders: data as unknown as Array<AdminOrder> });
   } catch (err: unknown) {
