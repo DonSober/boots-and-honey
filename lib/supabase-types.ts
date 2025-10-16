@@ -1,27 +1,39 @@
 import type { Database as Generated } from "@/types/database-generated";
 
-// AppDatabase extends generated types to include new tables added during iteration
-// without forcing a full regeneration. We keep shapes as unknown to avoid over-coupling.
-export type AppDatabase = Generated & {
+// Extend the generated Database with only the extra tables we actually have (e.g., profiles)
+// Keep all existing generated table shapes intact to preserve strong typing.
+export type ExtendedDatabase = Generated & {
   public: Generated["public"] & {
     Tables: Generated["public"]["Tables"] & {
       profiles: {
-        Row: unknown;
-        Insert: unknown;
-        Update: unknown;
-        Relationships: unknown[];
-      };
-      contacts: {
-        Row: unknown;
-        Insert: unknown;
-        Update: unknown;
-        Relationships: unknown[];
-      };
-      accounts: {
-        Row: unknown;
-        Insert: unknown;
-        Update: unknown;
-        Relationships: unknown[];
+        Row: {
+          user_id: string;
+          business_name: string;
+          website: string | null;
+          phone: string | null;
+          is_complete: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          business_name: string;
+          website?: string | null;
+          phone?: string | null;
+          is_complete?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          business_name?: string;
+          website?: string | null;
+          phone?: string | null;
+          is_complete?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
     };
   };

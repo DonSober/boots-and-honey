@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceRoleClient } from "@/utils/supabase/service-role";
 import { OrderStatus } from "@/packages/types/src";
-import type { AppDatabase } from "@/lib/supabase-types";
+import type { ExtendedDatabase } from "@/lib/supabase-types";
 
 const Body = z.object({ status: OrderStatus });
 
@@ -13,15 +13,15 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     const supabase = createServiceRoleClient();
 
     // Strictly typed update; ensure types are regenerated after schema changes
-    type OrderRow = AppDatabase["public"]["Tables"]["orders"]["Row"]
-    type OrderUpdate = AppDatabase["public"]["Tables"]["orders"]["Update"]
+    type OrderRow = ExtendedDatabase["public"]["Tables"]["orders"]["Row"]
+    type OrderUpdate = ExtendedDatabase["public"]["Tables"]["orders"]["Update"]
     type OrderStatusDb = OrderRow["status"]
 
     const payload: OrderUpdate = { status: body.status as OrderStatusDb }
 
     const { error } = await supabase
       .from<'orders', OrderRow>("orders")
-      .update<OrderUpdate>(payload)
+      .update(payload)
       .eq("id", id);
 
     if (error) {
