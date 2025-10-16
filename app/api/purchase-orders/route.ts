@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createServiceRoleClient()
     const body: PurchaseOrderRequest = await request.json()
-    
+
     // Build payload for submit_purchase_order RPC
     // Note: No idempotency key - allows repeat customers to place same order multiple times
     const rpcPayload = {
@@ -55,27 +55,42 @@ export async function POST(request: NextRequest) {
         : new Date().toISOString(),
       deliverySelected: body.deliverySelected
     }
-    
+
     // Call the RPC function
     const { data, error } = await supabase.rpc('submit_purchase_order', {
       p_payload: rpcPayload
     })
-    
+
     if (error || !data || !Array.isArray(data) || data.length === 0) {
+      subtotal: productTotal,
+      addon_total: addonTotal,
+      total: totalAmount,
+      status: 'pending',
+      account_id: accountId ?? null,
+      contact_id: contactId ?? null,
+    }
+
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert(orderInsert)
+      .select()
+      .single()
+
+    if (orderError) {
       return NextResponse.json(
         { success: false, error: 'Failed to create purchase order', details: error?.message || 'No data returned' },
         { status: 500 }
       )
     }
-    
+
     const result = data[0]
-    
+
     return NextResponse.json({
       success: true,
       orderId: result.order_id,
       orderNumber: result.order_number
     })
-    
+
   } catch (error) {
     console.error('Purchase order error:', error)
     return NextResponse.json(
