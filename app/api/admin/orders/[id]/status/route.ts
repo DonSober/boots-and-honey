@@ -14,8 +14,8 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
 
     // Strictly typed update; ensure types are regenerated after schema changes
     const { error } = await supabase
-      .from("orders")
-      .update<AppDatabase["public"]["Tables"]["orders"]["Update"]>({ status: body.status })
+      .from<AppDatabase["public"]["Tables"]["orders"]["Row"]>("orders")
+      .update({ status: body.status as AppDatabase["public"]["Tables"]["orders"]["Row"]["status"] })
       .eq("id", id);
 
     if (error) {
