@@ -13,9 +13,13 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     const supabase = createServiceRoleClient();
 
     // Strictly typed update; ensure types are regenerated after schema changes
+    type OrderUpdate = AppDatabase["public"]["Tables"]["orders"]["Update"]
+    type OrderStatusDb = AppDatabase["public"]["Tables"]["orders"]["Row"]["status"]
+    const payload: OrderUpdate = { status: body.status as OrderStatusDb }
+
     const { error } = await supabase
-      .from<AppDatabase["public"]["Tables"]["orders"]["Row"]>("orders")
-      .update({ status: body.status as AppDatabase["public"]["Tables"]["orders"]["Row"]["status"] })
+      .from("orders")
+      .update(payload)
       .eq("id", id);
 
     if (error) {
