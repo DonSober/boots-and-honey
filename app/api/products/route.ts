@@ -5,10 +5,12 @@ export async function GET() {
   try {
     const supabase = await createClient()
     
+    // Read from products_view for backward compatibility
+    // This view combines products_v2 + product_variants with legacy shape
     const { data: products, error } = await supabase
-      .from('products')
+      .from('products_view')
       .select('*')
-      .order('type')
+      .order('name')
     
     if (error) {
       console.error('Error fetching products:', error)

@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -85,6 +85,45 @@ export type Database = {
           },
         ]
       }
+      addresses: {
+        Row: {
+          city: string
+          created_at: string
+          geocoded_at: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          state: string
+          street: string | null
+          updated_at: string
+          zip_code: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          geocoded_at?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          state: string
+          street?: string | null
+          updated_at?: string
+          zip_code: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          geocoded_at?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          state?: string
+          street?: string | null
+          updated_at?: string
+          zip_code?: string
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           business_name: string | null
@@ -118,6 +157,30 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      delivery_settings: {
+        Row: {
+          base_zip: string
+          id: number
+          max_distance_miles: number
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          base_zip?: string
+          id?: number
+          max_distance_miles?: number
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          base_zip?: string
+          id?: number
+          max_distance_miles?: number
+          price?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -190,121 +253,6 @@ export type Database = {
           },
         ]
       }
-      order_communications: {
-        Row: {
-          communication_type: string
-          created_at: string
-          error_message: string | null
-          id: string
-          metadata: Json | null
-          order_id: string
-          provider_message_id: string | null
-          recipient_email: string
-          retry_count: number
-          sent_at: string | null
-          status: string
-          subject: string | null
-          updated_at: string
-          webhook_event_id: string | null
-        }
-        Insert: {
-          communication_type: string
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          metadata?: Json | null
-          order_id: string
-          provider_message_id?: string | null
-          recipient_email: string
-          retry_count?: number
-          sent_at?: string | null
-          status?: string
-          subject?: string | null
-          updated_at?: string
-          webhook_event_id?: string | null
-        }
-        Update: {
-          communication_type?: string
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          metadata?: Json | null
-          order_id?: string
-          provider_message_id?: string | null
-          recipient_email?: string
-          retry_count?: number
-          sent_at?: string | null
-          status?: string
-          subject?: string | null
-          updated_at?: string
-          webhook_event_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_communications_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      order_documents: {
-        Row: {
-          created_at: string
-          document_type: string
-          error_message: string | null
-          file_path: string | null
-          file_url: string | null
-          generated_at: string | null
-          id: string
-          metadata: Json | null
-          order_id: string
-          retry_count: number
-          status: string
-          updated_at: string
-          webhook_event_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          document_type: string
-          error_message?: string | null
-          file_path?: string | null
-          file_url?: string | null
-          generated_at?: string | null
-          id?: string
-          metadata?: Json | null
-          order_id: string
-          retry_count?: number
-          status?: string
-          updated_at?: string
-          webhook_event_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          document_type?: string
-          error_message?: string | null
-          file_path?: string | null
-          file_url?: string | null
-          generated_at?: string | null
-          id?: string
-          metadata?: Json | null
-          order_id?: string
-          retry_count?: number
-          status?: string
-          updated_at?: string
-          webhook_event_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_documents_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       order_items: {
         Row: {
           created_at: string
@@ -353,18 +301,53 @@ export type Database = {
           },
         ]
       }
+      order_public_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          order_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          order_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          order_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_public_tokens_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           account_id: string | null
           addon_total: number
+          address_id: string | null
           business_address: string | null
           city: string | null
           company_name: string
           contact_id: string | null
           contact_name: string
           created_at: string
+          delivery_distance_miles: number | null
+          delivery_notes: string | null
+          delivery_price: number
+          delivery_selected: boolean
           email: string
           id: string
+          idempotency_key: string | null
           order_number: string
           phone: string | null
           po_number: string | null
@@ -380,14 +363,20 @@ export type Database = {
         Insert: {
           account_id?: string | null
           addon_total?: number
+          address_id?: string | null
           business_address?: string | null
           city?: string | null
           company_name: string
           contact_id?: string | null
           contact_name: string
           created_at?: string
+          delivery_distance_miles?: number | null
+          delivery_notes?: string | null
+          delivery_price?: number
+          delivery_selected?: boolean
           email: string
           id?: string
+          idempotency_key?: string | null
           order_number: string
           phone?: string | null
           po_number?: string | null
@@ -403,14 +392,20 @@ export type Database = {
         Update: {
           account_id?: string | null
           addon_total?: number
+          address_id?: string | null
           business_address?: string | null
           city?: string | null
           company_name?: string
           contact_id?: string | null
           contact_name?: string
           created_at?: string
+          delivery_distance_miles?: number | null
+          delivery_notes?: string | null
+          delivery_price?: number
+          delivery_selected?: boolean
           email?: string
           id?: string
+          idempotency_key?: string | null
           order_number?: string
           phone?: string | null
           po_number?: string | null
@@ -432,10 +427,58 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "orders_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          created_at: string
+          features: Json | null
+          id: string
+          is_active: boolean
+          price_per_bundle: number
+          product_id: string
+          updated_at: string
+          variant_code: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          price_per_bundle: number
+          product_id: string
+          updated_at?: string
+          variant_code: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          price_per_bundle?: number
+          product_id?: string
+          updated_at?: string
+          variant_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_v2"
             referencedColumns: ["id"]
           },
         ]
@@ -473,161 +516,104 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
-        Row: {
-          business_name: string
-          created_at: string
-          is_complete: boolean
-          phone: string | null
-          updated_at: string
-          user_id: string
-          website: string | null
-        }
-        Insert: {
-          business_name: string
-          created_at?: string
-          is_complete?: boolean
-          phone?: string | null
-          updated_at?: string
-          user_id: string
-          website?: string | null
-        }
-        Update: {
-          business_name?: string
-          created_at?: string
-          is_complete?: boolean
-          phone?: string | null
-          updated_at?: string
-          user_id?: string
-          website?: string | null
-        }
-        Relationships: []
-      }
-      webhook_events: {
+      products_v2: {
         Row: {
           created_at: string
-          error_message: string | null
-          event_type: string
+          description: string | null
           id: string
-          payload: Json
-          processed_at: string | null
-          processing_duration_ms: number | null
-          record_id: string
-          retry_count: number
-          status: string
-          table_name: string
+          is_active: boolean
+          name: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          error_message?: string | null
-          event_type: string
+          description?: string | null
           id?: string
-          payload: Json
-          processed_at?: string | null
-          processing_duration_ms?: number | null
-          record_id: string
-          retry_count?: number
-          status?: string
-          table_name: string
+          is_active?: boolean
+          name: string
           updated_at?: string
         }
         Update: {
           created_at?: string
-          error_message?: string | null
-          event_type?: string
+          description?: string | null
           id?: string
-          payload?: Json
-          processed_at?: string | null
-          processing_duration_ms?: number | null
-          record_id?: string
-          retry_count?: number
-          status?: string
-          table_name?: string
+          is_active?: boolean
+          name?: string
           updated_at?: string
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      mv_customers: {
+        Row: {
+          average_order_value: number | null
+          company_name: string | null
+          last_order_date: string | null
+          total_orders: number | null
+          total_spent: number | null
+        }
+        Relationships: []
+      }
+      mv_product_performance: {
+        Row: {
+          average_selling_price: number | null
+          name: string | null
+          times_ordered: number | null
+          total_quantity_sold: number | null
+          total_revenue: number | null
+          variant_code: string | null
+        }
+        Relationships: []
+      }
+      mv_sales_by_day: {
+        Row: {
+          average_order_value: number | null
+          day: string | null
+          total_orders: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      products_view: {
+        Row: {
+          created_at: string | null
+          features: Json | null
+          id: string | null
+          name: string | null
+          price_per_bundle: number | null
+          type: Database["public"]["Enums"]["product_type_enum"] | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      citext: {
-        Args: { "": boolean } | { "": string } | { "": unknown }
-        Returns: string
-      }
-      citext_hash: {
-        Args: { "": string }
-        Returns: number
-      }
-      citextin: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      citextout: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      citextrecv: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      citextsend: {
-        Args: { "": string }
-        Returns: string
+      can_apply_delivery: {
+        Args: { p_zip: string }
+        Returns: boolean
       }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
       normalize_account_name: {
         Args: { raw: string }
         Returns: string
       }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
+      refresh_analytics: {
         Args: Record<PropertyKey, never>
-        Returns: number
+        Returns: undefined
       }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
+      submit_purchase_order: {
+        Args: { p_payload: Json }
+        Returns: {
+          order_id: string
+          order_number: string
+        }[]
       }
     }
     Enums: {
-      order_status_enum:
-        | "pending"
-        | "confirmed"
-        | "processing"
-        | "ready_for_pickup"
-        | "out_for_delivery"
-        | "delivered"
-        | "completed"
-        | "cancelled"
       product_type_enum: "starter" | "premium"
     }
     CompositeTypes: {
@@ -756,16 +742,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      order_status_enum: [
-        "pending",
-        "confirmed",
-        "processing",
-        "ready_for_pickup",
-        "out_for_delivery",
-        "delivered",
-        "completed",
-        "cancelled",
-      ],
       product_type_enum: ["starter", "premium"],
     },
   },
