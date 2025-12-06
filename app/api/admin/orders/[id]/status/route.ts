@@ -20,7 +20,7 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     const payload: OrderUpdate = { status: body.status as OrderStatusDb }
 
     const { error } = await supabase
-      .from<'orders', OrderRow>("orders")
+      .from("orders")
       .update(payload)
       .eq("id", id);
 
