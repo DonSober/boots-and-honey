@@ -89,25 +89,26 @@ export async function POST(request: NextRequest) {
       .from('order-documents')
       .getPublicUrl(`receipts/${fileName}`)
 
-    // Record in order_documents table
-    const { error: recordError } = await supabase
-      .from('order_documents')
-      .insert({
-        order_id: orderId,
-        document_type: 'receipt',
-        file_url: publicUrl,
-        file_path: uploadData.path,
-        status: 'generated',
-        generated_at: new Date().toISOString(),
-        metadata: {
-          webhook_triggered: true,
-          generated_at: new Date().toISOString()
-        }
-      })
-
-    if (recordError) {
-      console.warn('Failed to record document:', recordError.message)
-    }
+    // TODO: Record in order_documents table once the table is created in the database
+    // The table doesn't currently exist in the schema, so this is commented out
+    // const { error: recordError } = await supabase
+    //   .from('order_documents')
+    //   .insert({
+    //     order_id: orderId,
+    //     document_type: 'receipt',
+    //     file_url: publicUrl,
+    //     file_path: uploadData.path,
+    //     status: 'generated',
+    //     generated_at: new Date().toISOString(),
+    //     metadata: {
+    //       webhook_triggered: true,
+    //       generated_at: new Date().toISOString()
+    //     }
+    //   })
+    //
+    // if (recordError) {
+    //   console.warn('Failed to record document:', recordError.message)
+    // }
 
     return NextResponse.json({
       success: true,
